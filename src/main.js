@@ -1,4 +1,5 @@
 /**
+ * 
  * Функция для расчета выручки
  * @param purchase запись о покупке
  * @param _product карточка товара
@@ -15,6 +16,7 @@ function calculateSimpleRevenue(purchase, _product) {
  * @param seller карточка продавца
  * @returns {number}
  */
+
 function calculateBonusByProfit(index, total, seller) {
     // @TODO: Расчет бонуса от позиции в рейтинге
 }
@@ -27,13 +29,41 @@ function calculateBonusByProfit(index, total, seller) {
  */
 function analyzeSalesData(data, options) {
     // @TODO: Проверка входных данных
+    if (!data 
+        ||!Array.isArray(data.sellers)
+        ||!Array.isArray(data.products)
+        ||!Array.isArray(data.purchase_records)
+    ){
+        throw new Error ('Некорректные входные данные')
+    }
 
     // @TODO: Проверка наличия опций
-
+    const {calculateRevenue, calculateBonus } = options;
+    if (typeof calculateRevenue !== "function"
+        ||typeof calculateBonus !== "function"
+    ){
+        throw new Error ('Переменные не являються фунциями')
+     }
     // @TODO: Подготовка промежуточных данных для сбора статистики
+     const sellerStats = data.sellers.map(seller =>({
+        id: seller.id,
+        name: `${seller.first_name} ${seller.last_name}`,
+        revenue: 0,
+        profit: 0,
+        sales_count: 0,
+        products_sold: {}
+     }))
 
     // @TODO: Индексация продавцов и товаров для быстрого доступа
-
+     const sellerIndex = sellerStats.reduce((result, item) => ({
+    ...result,
+    [item.id]: item
+    }), {}); 
+    const productIndex  = data.products.reduce((result, item) => ({
+    ...result,
+    [item.sku]: item
+    }), {}); 
+ 
     // @TODO: Расчет выручки и прибыли для каждого продавца
 
     // @TODO: Сортировка продавцов по прибыли
