@@ -21,8 +21,17 @@ function calculateSimpleRevenue(purchase, _product) {
 
 function calculateBonusByProfit(index, total, seller) {
     // @TODO: Расчет бонуса от позиции в рейтинге
+    const {profit} = seller;
+    if (index === 0) {
+        return profit * 0.15;
+    } else if (index === 1 || index === 2) {
+        return profit * 0.10;
+    } else if (index === total - 1) {
+        return 0;
+    } else {
+        return profit * 0.05;
+    }
 }
-
 /**
  * Функция для анализа данных продаж
  * @param data
@@ -45,7 +54,7 @@ function analyzeSalesData(data, options) {
     if (typeof calculateRevenue !== "function"
         ||typeof calculateBonus !== "function"
     ){
-        throw new Error ('Переменные не являються фунциями')
+        throw new Error ('Переменные не являются фунциями')
      }
     // @TODO: Подготовка промежуточных данных для сбора статистики
      const sellerStats = data.sellers.map(seller =>({
@@ -88,6 +97,24 @@ function analyzeSalesData(data, options) {
     // @TODO: Сортировка продавцов по прибыли
     sellerStats.sort((a, b) => b.profit - a.profit);
     // @TODO: Назначение премий на основе ранжирования
-
+        sellerStats.forEach((seller, index) => {
+                seller.bonus = calculateBonus(index, sellerStats.length, seller)
+                seller.top_products = Object.entries(seller.products_sold).map(item =>({
+                    sku : item[0],
+                    quantity: item[1]
+            }))
+            seller.top_products.sort((a, b) => b.quantity - a.quantity);
+            seller.top_products = seller.top_products.slice(0, 10);
+        }); 
     // @TODO: Подготовка итоговой коллекции с нужными полями
+    return sellerStats.map(seller => ({
+        seller_id: seller.id,
+        name: seller.name,
+        revenue: +seller.revenue.toFixed(2),
+        profit: +seller.profit.toFixed(2),
+        sales_count: seller.sales_count,
+        top_products: seller.top_products,
+        bonus: +seller.bonus.toFixed(2)
+}))
+
 }
